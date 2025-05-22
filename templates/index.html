@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReelRover - Smart Movie Suggestions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-magenta: #ff00ff;
+            --deep-space: #0a0a12;
+            --star-dust: #e0e0e8;
+            --black-hole: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--deep-space);
+            color: var(--star-dust);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: linear-gradient(145deg, #0f0f1a 0%, #000007 100%);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.1);
+        }
+
+        .cyber-header {
+            padding: 4rem 3rem;
+            text-align: center;
+            border-bottom: 3px solid var(--neon-cyan);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,243,255,0.1) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+        }
+
+        .sub-heading {
+            font-size: 1.4rem;
+            color: var(--star-dust);
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .search-portal {
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 2rem;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 8px;
+            color: var(--neon-cyan);
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .scan-button {
+            padding: 1.5rem 3rem;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            border: none;
+            border-radius: 8px;
+            color: var(--black-hole);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .scan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 243, 255, 0.3);
+        }
+
+        .results-matrix {
+            padding: 2rem 3rem;
+        }
+
+        .result-header {
+            font-size: 2rem;
+            color: var(--neon-magenta);
+            margin-bottom: 2rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #0f0f1a 0%, #000007 100%);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .result-card:hover {
+            transform: translateX(10px);
+            border-color: var(--neon-magenta);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .movie-title {
+            font-size: 1.5rem;
+            color: var(--neon-cyan);
+            font-weight: 500;
+        }
+
+        .match-score {
+            background: rgba(255, 0, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: var(--neon-magenta);
+            font-weight: 700;
+            border: 1px solid var(--neon-magenta);
+        }
+
+        .movie-tags {
+            color: var(--star-dust);
+            opacity: 0.8;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .error-core {
+            padding: 4rem;
+            text-align: center;
+            border: 2px solid var(--neon-magenta);
+            border-radius: 15px;
+            margin: 2rem;
+            background: rgba(255, 0, 255, 0.05);
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            color: var(--neon-magenta);
+            margin-bottom: 1rem;
+        }
+
+        .error-text {
+            font-size: 1.5rem;
+            color: var(--neon-cyan);
+            margin-bottom: 1rem;
+        }
+
+        /* Scanning animation styles */
+        .scanning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .scanning-text {
+            font-size: 2rem;
+            color: var(--neon-cyan);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        .scanning-animation {
+            width: 80px;
+            height: 80px;
+            border: 5px solid var(--neon-magenta);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        .scanning-animation::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 5px solid var(--neon-cyan);
+            border-radius: 50%;
+            border-bottom-color: transparent;
+            border-left-color: transparent;
+            animation: spinReverse 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spinReverse {
+            to { transform: rotate(-360deg); }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--neon-cyan); }
+            100% { opacity: 0.6; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 0;
+            }
+
+            .cyber-header {
+                padding: 2rem 1rem;
+            }
+
+            .main-title {
+                font-size: 2.5rem;
+            }
+
+            .search-portal {
+                margin: 1rem;
+                padding: 2rem;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scan-button {
+                width: 100%;
+            }
+
+            .scanning-text {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="cyber-header">
+            <h1 class="main-title">REELROVER</h1>
+            <p class="sub-heading">Neural-Powered Cinematic Discovery Engine</p>
+        </header>
+
+        <div class="search-portal">
+            <form method="POST" id="searchForm">
+                <div class="search-grid">
+                    <input type="text" 
+                           class="search-input" 
+                           name="movie_name" 
+                           placeholder="ENTER CINEMATIC INPUT..."
+                           value="{{ search_query if search_query }}">
+                    <button type="submit" class="scan-button" id="scanButton">
+                        <i class="fas fa-satellite-dish"></i> INITIATE SCAN
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="scanningOverlay" class="scanning-overlay hidden">
+            <div class="scanning-text">SCANNING CINEMATIC DATABASE</div>
+            <div class="scanning-animation"></div>
+        </div>
+
+        {% if results %}
+        <div class="results-matrix">
+            {% if results.found %}
+            <h2 class="result-header">ANALYSIS RESULTS FOR: "{{ results.input_movie }}"</h2>
+
+            {% for rec in results.recommendations %}
+            <div class="result-card">
+                <div class="card-header">
+                    <div class="movie-title">{{ rec.movie }}</div>
+                    <div class="match-score">{{ rec.score }} MATCH</div>
+                </div>
+                <div class="movie-tags">{{ rec.tags }}</div>
+            </div>
+            {% endfor %}
+
+            {% else %}
+            <div class="error-core">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="error-text">CINEMATIC PATTERN NOT RECOGNIZED</div>
+                <p>No matches found for "{{ search_query }}". Initiate new scan sequence.</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show scanning overlay
+            document.getElementById('scanningOverlay').classList.remove('hidden');
+            
+            // Disable the button to prevent multiple submissions
+            document.getElementById('scanButton').disabled = true;
+            
+            // Simulate scanning for 2 seconds before submitting the form
+            setTimeout(() => {
+                // Hide scanning overlay
+                document.getElementById('scanningOverlay').classList.add('hidden');
+                
+                // Actually submit the form
+                this.submit();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
