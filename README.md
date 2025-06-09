@@ -23,4 +23,6 @@ This is a Flask-based web application that recommends Indian movies based on use
 
 ---
 
-## 📂 Project Structure
+Deployed link
+<br>
+https://my-movie-recommender-qlvi.onrender.com/
